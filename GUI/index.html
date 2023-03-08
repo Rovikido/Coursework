@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type='text/javascript' src="/eel.js"></script>
+    <script type='text/javascript' src="connector.js"></script>
+    <link href="style.css" rel="stylesheet"></link>
+    <script>
+        var last_field = '';
+        var last_row = ''
+        function fetch_db(field='', row='', order_by='student.student_initials', reset=false){
+            if (field != ''){
+                last_field = field;
+            }
+            if (row != ''){
+                last_row = row;
+            }
+            if (reset){
+                last_field = '';
+                last_row = ''
+            }
+            eel.fetch_all_data(last_field, last_row, order_by)
+        }
+        eel.expose(update_table);
+
+        function update_advisor_dict(){
+            eel.get_advisor_dict()
+        }
+        eel.expose(populate_advisor_dict);
+
+        function update_student_dict(){
+            eel.get_student_dict()
+        }
+        eel.expose(populate_student_dict);
+
+        var form = null;
+        var form2 = null;
+        function create_listener(){
+            form = document.getElementById('coursework_creation');
+            form.addEventListener('submit', process_input);
+            form2 = document.getElementById('coursework_deletion');
+            form2.addEventListener('submit', process_input2);
+        }
+        function process_input(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+        
+            var data = {};
+            formData.forEach((value, key) => data[key] = value);
+            
+            json = JSON.stringify(data);
+            eel.add_coursework(json);
+            closeNav()
+            form.reset()
+        }
+        function process_input2(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+        
+            var data = {};
+            formData.forEach((value, key) => data[key] = value);
+            
+            json = JSON.stringify(data);
+            eel.delete_coursework(json);
+            closeNav2()
+            form.reset()
+        }
+    </script> 
+</head>
+<body onload="(function(){ 
+    fetch_db();
+    update_advisor_dict();
+    update_student_dict();
+    create_listener();
+    add_lst();
+    })();">
+    <div class="container" style="display: inline-block;">
+        <div style="width: 150px; transform: translate(750px, 0); position: absolute;" id="dropdown_div">
+            <div id="dropdown">
+                
+                <button id="dropbtn" onclick="toggle_dropdown()">&#9881;</button><br>
+                
+                <div id="dropdown-content" style="display: none;">
+                    <p style="padding:10px 10px 13px; margin: 0; color:#595959; font-size: 18px;">Toggle Columns</p>
+
+                    <label for="work_id-checkbox">
+                        <input type="checkbox" id="work_id-checkbox" onclick="alter_visibility('work_id')" >
+                        Work ID
+                    </label><br>
+        
+
+                    
+                    <label for="student_initials-checkbox">
+                        <input type="checkbox" id="student_initials-checkbox" onclick="alter_visibility('student_initials')" checked>
+                        Student Name
+                    </label><br>
+        
+                    <label for="student_grp-checkbox">
+                        <input type="checkbox" id="student_grp-checkbox" onclick="alter_visibility('student_grp')" checked>
+                        Student Group
+                    </label><br>
+        
+                    <!-- <label for="student_course-checkbox">
+                        <input type="checkbox" id="student_course-checkbox" onclick="alter_visibility('student_course')">
+                        Student Course
+                    </label><br> -->
+        
+                    <!-- <label for="student_dept-checkbox">
+                        <input type="checkbox" id="student_dept-checkbox" onclick="alter_visibility('student_dept')">
+                        Student Dept
+                    </label><br> -->
+        
+                    <label for="student_faculty-checkbox">
+                        <input type="checkbox" id="student_faculty-checkbox" onclick="alter_visibility('student_faculty')">
+                        Faculty
+                    </label><br>
+        
+                    
+                    
+                    <label for="advisor_initials-checkbox">
+                        <input type="checkbox" id="advisor_initials-checkbox" onclick="alter_visibility('advisor_initials')" checked>
+                        Advisor Name
+                    </label><br>
+        
+                    <label for="advisor_dept-checkbox">
+                        <input type="checkbox" id="advisor_dept-checkbox" onclick="alter_visibility('advisor_dept')">
+                        Advisor Dept
+                    </label><br>
+        
+                    <!-- <label for="advisor_faculty-checkbox">
+                        <input type="checkbox" id="advisor_faculty-checkbox" onclick="alter_visibility('advisor_faculty')">
+                        Advisor Faculty
+                    </label><br> -->
+                    
+
+
+                    <label for="written_in-checkbox">
+                        <input type="checkbox" id="written_in-checkbox" onclick="alter_visibility('written_in')" checked>
+                        Written in
+                    </label><br>
+                    
+                    <label for="field_of_study-checkbox">
+                        <input type="checkbox" id="field_of_study-checkbox" onclick="alter_visibility('field_of_study')" checked>
+                        Field of Study
+                    </label><br>
+        
+                    <label for="theme-checkbox">
+                        <input type="checkbox" id="theme-checkbox" onclick="alter_visibility('theme')" checked>
+                        Theme
+                    </label><br>
+        
+                    <label for="file_link-checkbox">
+                        <input type="checkbox" id="file_link-checkbox" onclick="alter_visibility('file_link')" >
+                        File Link
+                    </label><br>
+                </div><br>
+                <button class="open_nav_btn" onclick="openNav()">&#43;</button><br>
+                <button class="open_nav_btn" onclick="openNav2()">&#8722;</button><br>
+                <button class="open_nav_btn" style="font-size:42px;" onclick="fetch_db('', '', 'student.student_initials', true)">&#10226;</button>
+            </div>
+        </div>
+        <table id="main_table">
+            <thead>
+                <tr>
+                    <th class="work_id">Work ID</th>
+
+                    <th class="student_initials">Student Name</th>
+                    <th class="student_grp">Student Group</th>
+                    <th class="student_course">Student Course</th>
+                    <th class="student_dept">Student Dept</th>
+                    <th class="student_faculty">Student Faculty</th>
+
+                    <th class="advisor_initials">Advisor Name</th>
+                    <th class="advisor_dept">Advisor Dept</th>
+                    <th class="advisor_faculty">Advisor Faculty</th>
+
+                    <th class="written_in">Written in</th>
+                    <th class="field_of_study">Field of Study</th>
+                    <th class="theme">Theme</th>
+                    <th class="file_link">File Link</th>
+                </tr>
+            </thead>
+            <tbody id="data_output">
+            </tbody>
+        </table>
+    </div>
+    <div id="myNav" class="overlay">
+        <button class="closebtn"  onclick="closeNav()">&times;</button>
+        <div class="overlay-content">
+            <form id="coursework_creation">
+                <label for="advisor_selector">Advisor:</label>
+                <select id="advisor_selector" name="advisor_id"><optgroup id="advisor_optgroup"><option value="" disabled selected hidden>--Please select an advisor--</option></optgroup></select>
+
+                <label for="student_selector">Student:</label>
+                <select id="student_selector" name="student_id"><optgroup id="student_optgroup"><option value="" disabled selected hidden>--Please choose a student--</option></optgroup></select>
+                
+                <label for="written_in">Written in semester:</label>
+                <input class="ovrl_input" type="number" id="written_in" name="written_in" placeholder="Semester num" min="1" max="8" required><br>
+
+                <label for="field_of_study">Field of Study:</label>
+                <input class="ovrl_input" type="text" id="field_of_study" name="field_of_study" placeholder="Your Field of Study" maxlength="200" required><br>
+
+                <label for="theme">Theme:</label>
+                <input class="ovrl_input" type="text" id="theme" name="theme" maxlength="200" placeholder="Your Theme" required><br>
+
+                <label for="file_link">File Link:</label>
+                <input class="ovrl_input" type="text" id="file_link" name="file_link" maxlength="2000" placeholder="File Link (optional)"><br><br>
+                <input type="submit"  value="Add coursework" style = "font-size:20px">
+                <div style="padding: 0 0 15px;"></div>
+            </form>
+            
+        </div>
+      </div>
+      <div id="myNav2" class="overlay">
+        <button class="closebtn" onclick="closeNav2()">&times;</button>
+        <div class="overlay-content" style="top: 35%;">
+            <form id="coursework_deletion">
+                <label for="coursework_selector">Coursework Theme:</label>
+                <select id="coursework_selector" name="work_id"><optgroup id="coursework_optgroup"><option value="-1" disabled selected hidden>--Please choose a coursework--</option></optgroup></select>
+                
+                <div style="padding: 0 0 15px;"></div>
+                <input type="submit" value="Remove coursework" style = "font-size:20px"><br>
+                <div style="padding: 0 0 15px;"></div>
+            </form>
+        </div>
+      </div>
+
+</body>
+</html>
